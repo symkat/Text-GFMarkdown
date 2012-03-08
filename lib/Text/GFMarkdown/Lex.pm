@@ -26,6 +26,8 @@ sub lex {
             my $pos = pos($str);
             $str = "\n$str";
             pos($str) = ($pos);
+        } elsif ( $str =~ /\G([\#]+) (.+?)$/gc  ) {
+            push @tokens, $self->make_token( "header", $2, { size => length($1) } );
         } elsif ( $str =~ /\G\*\*\*/gc ) {
             push @tokens, $self->make_token("bold_italic");
         } elsif ( $str =~ /\G___/gc  ) {

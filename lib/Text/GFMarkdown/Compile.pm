@@ -40,6 +40,10 @@ sub _compile {
     return $str;
 }
 
+sub paragraph {
+    return "<p>" . shift . "</p>";
+}
+
 sub italic {
     my ( $node ) = @_;
     if ( ref $node ) {
