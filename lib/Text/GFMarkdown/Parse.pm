@@ -22,33 +22,6 @@ sub parse {
 
     push @tree, $self->_parse(\@tokens);
 
-#    while ( defined ( my $token = shift @tokens ) ) {
-#
-#        # When we are dealing with chars, we create strings.
-#        # Once we're out of characters, we continue.
-#        if ( $token->{type} eq 'char' ) {
-#            unshift @tokens, $token;
-#            push @tree, { type => 'string', content => $self->parse_string(\@tokens) };
-#        } elsif ( $token->{type} eq 'url' ) {
-#            push @tree, { type => 'url', content => $token->{content} };
-#        } elsif ( $token->{type} eq 'bold' ) {
-#            push @tree, { type => 'bold', content => $self->parse_string(\@tokens) };
-#            my $eat = shift @tokens;
-#            if ( $eat->{type} ne 'bold' ) {
-#                die "Error, bold never finished.";
-#            }
-#        } elsif ( $token->{type} eq 'italic' ) {
-#            push @tree, { type => 'italic', content => $self->parse_string(\@tokens) };
-#            my $eat = shift @tokens;
-#            if ( $eat->{type} ne 'italic' ) {
-#                die "Error, bold never finished.";
-#            }
-#        } elsif ( $token->{type} eq 'paragraph_end' ) {
-#            push @tree, { type => 'paragraph_end' };
-#            push @tree, { type => 'paragraph_start' };
-#        }
-#    }
-
     # Our last token should be a paragraph ending.
     push @tree, { type => 'paragraph_end' };
 
@@ -65,18 +38,22 @@ sub _parse {
             push @tree, { type => 'string', content => $self->parse_string($tokens) };
         } elsif ( $token->{type} eq 'url' ) {
             push @tree, { type => 'url', content => $token->{content} };
-        } elsif ( $token->{type} eq 'bold' ) {
-            # Gather all tokens until italics finishes, and process them.
+        } elsif ( $token->{type} eq 'bold_italic' ) {
             my @todo;
             while ( defined ( my $todo_token = shift @{ $tokens } ) ) {
-                if ( $todo_token->{type} eq 'bold' ) {
-                    last;
-                }
+                last if $todo_token->{type} eq 'bold_italic';
+                push @todo, $todo_token;
+            }
+            push @tree, { type => 'bold', tokens => [ { type => 'italic', tokens => [ $self->_parse(\@todo) ] } ] };
+
+        } elsif ( $token->{type} eq 'bold' ) {
+            my @todo;
+            while ( defined ( my $todo_token = shift @{ $tokens } ) ) {
+                last if $todo_token->{type} eq 'bold';
                 push @todo, $todo_token;
             }
             push @tree, { type => 'bold', tokens => [ $self->_parse(\@todo)  ] };
         } elsif ( $token->{type} eq 'italic' ) {
-            # Gather all tokens until italics finishes, and process them.
             my @todo;
             while ( defined ( my $todo_token = shift @{ $tokens } ) ) {
                 last if $todo_token->{type} eq 'italic';
@@ -86,6 +63,9 @@ sub _parse {
         } elsif ( $token->{type} eq 'paragraph_end' ) {
             push @tree, { type => 'paragraph_end' };
             push @tree, { type => 'paragraph_start' };
+        } else {
+            die "Parse failed at token: ";
+            print Dumper $token;
         }
     }
     return @tree;

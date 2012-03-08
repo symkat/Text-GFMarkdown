@@ -17,7 +17,11 @@ sub lex {
     pos($str) = 0;
 
     while ( length($str) != pos($str) ) {
-        if ( $str =~ /\G\*\*/gc ) {
+        if ( $str =~ /\G\*\*\*/gc ) {
+            push @tokens, $self->make_token("bold_italic");
+        } elsif ( $str =~ /\G___/gc  ) {
+            push @tokens, $self->make_token("bold_italic");
+        } elsif ( $str =~ /\G\*\*/gc ) {
             push @tokens, $self->make_token("italic");
         } elsif ( $str =~ /\G\*/gc ) {
             push @tokens, $self->make_token( "bold" );

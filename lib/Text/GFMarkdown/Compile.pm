@@ -12,7 +12,6 @@ sub compile {
     my ( $self, @tree ) = @_;
 
     return $self->_compile( \@tree );
-
 }
 
 sub _compile {
