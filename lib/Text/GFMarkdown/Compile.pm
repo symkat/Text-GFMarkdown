@@ -30,7 +30,7 @@ sub _compile {
             }
         } else {
             if ( my $c = $self->can($node->{type}) ) {
-                $str .= $c->($node->{content});
+                $str .= $c->($node);
             } else {
                 warn "Unknown type " . $node->{type} . " returning content.";
                 $str .= $node->{content};
@@ -41,13 +41,21 @@ sub _compile {
 }
 
 sub italic {
-    my ( $content ) = @_;
-    return "<em>$content</em>";
+    my ( $node ) = @_;
+    if ( ref $node ) {
+        return "<em>" . $node->{content} . "</em>";
+    } else {
+        return "<em>$node</em>";
+    }
 }
 
 sub bold {
-    my ( $content ) = @_;
-    return "<strong>$content</strong>";
+    my ( $node ) = @_;
+    if ( ref $node ) {
+        return "<strong>" . $node->{content} . "</strong>";
+    } else {
+        return "<strong>$node</strong>";
+    }
 }
 
 sub paragraph_start {
@@ -59,12 +67,29 @@ sub paragraph_end {
 }
 
 sub url {
-    my ( $content ) = @_;
+    my ( $node ) = @_;
+    my $content = ref $node ? $node->{content} : $node;
     return "<a href=\"$content\">$content</a>"; 
 }
 
 sub string {
-    return shift;
+    my ( $node ) = @_;
+    return ref $node ? $node->{content} : $node;
+}
+
+sub line_break {
+    return '<br />';
+}
+
+sub header {
+    my ( $node ) = @_;
+
+    my $size = $node->{size};
+    $size = 1 if ( $size > 7 || $size < 1 );
+    my $header = $node->{content};
+    
+    $header =~ s/^\s//;
+    return "<h$size>$header</h$size>";
 }
 
 1;

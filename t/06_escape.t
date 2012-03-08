@@ -1,17 +1,88 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More skip_all => "Not implimented.";
+use Test::More;
 use Text::GFMarkdown;
 
 my $m = Text::GFMarkdown->new();
 
 my $tests = [
     {
-        in  => "",
-        out => "",
-        des => "",
+        in  => '\\',
+        out => '<p>\</p>',
+        des => 'Escaping \\',
     },
+    {
+        in  => '\`',
+        out => '<p>`</p>',
+        des => 'Escaping `',
+    },
+    {
+        in  => '\*',
+        out => '<p>*</p>',
+        des => 'Escaping *',
+    },
+    {
+        in  => '\_',
+        out => '<p>_</p>',
+        des => 'Escaping _',
+    },
+    {
+        in  => '\{',
+        out => '<p>{</p>',
+        des => 'Escaping {',
+    },
+    {
+        in  => '\}',
+        out => '<p>}</p>',
+        des => 'Escaping }',
+    },
+    {
+        in  => '\[',
+        out => '<p>[</p>',
+        des => 'Escaping [',
+    },
+    {
+        in  => '\]',
+        out => '<p>]</p>',
+        des => 'Escaping ]',
+    },
+    {
+        in  => '\(',
+        out => '<p>(</p>',
+        des => 'Escaping (',
+    },
+    {
+        in  => '\)',
+        out => '<p>)</p>',
+        des => 'Escaping )',
+    },
+    {
+        in  => '\#',
+        out => '<p>#</p>',
+        des => 'Escaping #',
+    },
+    {
+        in  => '\+',
+        out => '<p>+</p>',
+        des => 'Escaping +',
+    },
+    {
+        in  => '\-',
+        out => '<p>-</p>',
+        des => 'Escaping -',
+    },
+    {
+        in  => '\.',
+        out => '<p>.</p>',
+        des => 'Escaping .',
+    },
+    {
+        in  => '\!',
+        out => '<p>!</p>',
+        des => 'Escaping !',
+    },
+
 ];
 
 for my $test ( @{$tests} ) {

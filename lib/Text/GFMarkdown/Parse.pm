@@ -10,6 +10,16 @@ sub new {
     return $self;
 }
 
+sub in_block {
+
+}
+
+sub paragraph_open {
+    my $self = shift;
+    $self->{paragraph_open} = shift if @_;
+    return $self->{paragraph_open};
+}
+
 sub parse {
     my ( $self, @tokens ) = @_;
     
@@ -18,12 +28,18 @@ sub parse {
 
     if ( $tokens[0]->{type} ne 'header' ) {
         push @tree, { type => "paragraph_start" };
+        $self->paragraph_open(1);
     }
 
     push @tree, $self->_parse(\@tokens);
 
-    # Our last token should be a paragraph ending.
-    push @tree, { type => 'paragraph_end' };
+    # Kill extra <br />'s at the end.
+    pop @tree if $tree[-1]->{type} eq 'line_break';
+
+    my $ptags = scalar map { $_->{type} =~ /^paragraph/ } @tree;
+    if ( $ptags % 2 == 1 ) {
+        push @tree, { type => 'paragraph_end' };
+    }
 
     return @tree;
 }
@@ -61,11 +77,26 @@ sub _parse {
             }
             push @tree, { type => 'italic', tokens => [ $self->_parse(\@todo) ] };
         } elsif ( $token->{type} eq 'paragraph_end' ) {
-            push @tree, { type => 'paragraph_end' };
-            push @tree, { type => 'paragraph_start' };
+            # Do we need to terminate a previous paragraph_start ?
+            if ( $self->paragraph_open ) {
+                push @tree, { type => 'paragraph_end' };
+            }
+            # If the next thing isn't a block, we'll make another paragraph.
+            my $look_ahead = shift @{$tokens};
+            next unless $look_ahead; # We don't have a next thing.
+            if ( $look_ahead->{type} ne 'header' ) {
+                push @tree, { type => 'paragraph_start' };
+                unshift @{ $tokens }, $look_ahead; # Put it back.
+            } else {
+                $self->paragraph_open(0);
+                unshift @{ $tokens }, $look_ahead; # Put it back.
+            }
+        } elsif ( $token->{type} eq 'line_break' ) {
+            push @tree, { type => 'line_break' };
+        } elsif ( $token->{type} eq 'header' ) {
+            push @tree, $token;
         } else {
-            die "Parse failed at token: ";
-            print Dumper $token;
+            die "Parse failed at token: " . Dumper $token;
         }
     }
     return @tree;
