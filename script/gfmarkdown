@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use Text::GFMarkdown;
+use Text::GFMarkdown::Lex;
+use Text::GFMarkdown::Parse;
+use Text::GFMarkdown::Compile;
+use Data::Dumper;
+
+
+my ( $content, $file, $debug ) = ( undef, undef, 0 );
+
+while ( defined ( my $arg = shift @ARGV ) ) {
+    if ( $arg =~ /^-?-f(?:ile)$/ ) {
+        $file = shift @ARGV;
+    } elsif ( $arg =~ /^-?-d(?:ebug)$/ ) {
+        $debug = 1;
+    } else {
+        $content = $arg;
+    }
+}
+
+if ( defined $file ) {
+    open my $lf, "<", $file
+        or die "Failed to open $file for reading: $!";
+    $content = do { local $/; <$lf> };
+    close $lf;
+}
+
+
+sub debug {
+    print "\033[33mTokens From Lexer\033[0m\n";
+
+    my @lex = Text::GFMarkdown::Lex->new->lex($content);
+    print Dumper \@lex;
+
+    print "\033[33mParse Tree\033[0m\n";
+
+    my @tree = Text::GFMarkdown::Parse->new->parse(@lex);
+    print Dumper \@tree;
+
+    print "\033[33mFinal String\033[0m\n";
+
+    my $str = Text::GFMarkdown::Compile->new->compile(@tree);
+    print Dumper $str;
+}
+
+sub show_markdown {
+    my $md = Text::GFMarkdown->new;
+    print $md->markdown($content);
+}
+
+show_markdown   unless $debug;
+debug           if $debug;
