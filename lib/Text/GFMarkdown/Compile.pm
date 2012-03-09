@@ -41,7 +41,9 @@ sub _compile {
 }
 
 sub paragraph {
-    return "<p>" . shift . "</p>";
+    my ( $content ) = @_;
+    return "" unless $content;
+    return "<p>$content</p>";
 }
 
 sub italic {

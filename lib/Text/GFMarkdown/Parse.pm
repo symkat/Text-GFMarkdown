@@ -2,15 +2,16 @@ package Text::GFMarkdown::Parse;
 use warnings;
 use strict;
 use Data::Dumper;
+use base 'Text::GFMarkdown::Utils';
 
-my $debug = 1;
-
-sub debug {
-    my ( $self, $message ) = @_;
-    if ( $debug ) {
-        print "[DEBUG] " . $message . "\n";
-    }
-}
+#my $debug = 1;
+#
+#sub debug {
+#    my ( $self, $message ) = @_;
+#    if ( $debug ) {
+#        print "[DEBUG] " . $message . "\n";
+#    }
+#}
 
 sub new {
     my ( $class, $args ) = @_;
@@ -107,6 +108,8 @@ sub _parse_paragraph {
         } elsif ( $token->{type} eq 'paragraph_end' ) {
             $self->debug( "\tFound paragraph_end, returning.");
             return @tree;
+        } elsif ( $token->{type} eq 'string' ) {
+            push @tree, $token;
         } else {
             die "Parse failed at token: " . Dumper $token;
         }
