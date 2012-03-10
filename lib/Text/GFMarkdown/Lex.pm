@@ -24,6 +24,13 @@ sub lex {
         if ( $str =~ /\G(\\\\|\\\`|\\\*|\\\_|\\\{|\\\}|\\\[|\\\]|\\\(|\\\)|\\\#|\\\+|\\\-|\\\.|\\\!)/gc ) {
             push @tokens, $self->make_token( "char", substr($1,1,1) );
             $self->debug( "\tEscaped sequence (" . substr($1,1,1). ")" );
+        } elsif ( $str =~ /\G\`\`\` (\S+)\n/gc ) {
+            push @tokens, $self->make_token( "code_block", $1 );
+            $self->debug( "\tcode_block sequence type ($1)" );
+        } elsif ( $str =~ /\G\`\`\`\n/gc ) {
+            push @tokens, $self->make_token( "code_block" );
+            $self->debug( "\tcode_block sequence type (undef)" );
+
         } elsif ( $str =~ /\G([\#]+) (.+?)\n/gc  ) {
             push @tokens, $self->make_token( "header", $2, { size => length($1) } );
             # We need to add that \n back, since it's part of the language....

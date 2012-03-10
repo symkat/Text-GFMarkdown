@@ -1,6 +1,7 @@
 package Text::GFMarkdown::Compile;
 use warnings;
 use strict;
+use base 'Text::GFMarkdown::Utils';
 use Data::Dumper;
 
 sub new {
@@ -11,27 +12,35 @@ sub new {
 sub compile {
     my ( $self, @tree ) = @_;
 
+    print Dumper \@tree;
+
     return $self->_compile( \@tree );
 }
 
 sub _compile {
     my ( $self, $tree ) = @_;
     my $str;
+    $self->{compile}++;
+    my $space = "\t" x $self->{compile};
 
+    $self->debug( "$space compiling..."  );
 
     while ( defined ( my $node = shift @{ $tree } ) ) {
-
-
         if ( ref $node->{tokens} eq 'ARRAY' ) {
+            $self->debug( "$space found array of type " . $node->{type} );
             if ( my $c = $self->can($node->{type}) ) {
-                $str .= $c->( $self->_compile( $node->{tokens} ) );
+                $self->debug( "$space Calling " . $node->{type} . " on " . Dumper $node->{tokens} );
+                $str .= $c->( { content => $self->_compile( delete $node->{tokens} ), %{ $node } } );
             } else {
+                $self->debug( "$space calling compiler on type " . $node->{type} );
                 $str .= $self->_compile( $node->{tokens} );
             }
         } else {
             if ( my $c = $self->can($node->{type}) ) {
+                $self->debug( "$space calling " . $node->{type} . " on " . ($node->{content}  ? $node->{content} :"" ));
                 $str .= $c->($node);
             } else {
+                $self->debug( "$space calling " . $node->{type} . " on " . $node->{content} );
                 warn "Unknown type " . $node->{type} . " returning content.";
                 $str .= $node->{content};
             }
@@ -41,6 +50,9 @@ sub _compile {
 }
 
 sub paragraph {
+    my ( $node ) = @_;
+    return "" unless length $node->{content} >= 1; 
+    return "<p>" . $node->{content} . "</p>";
     my ( $content ) = @_;
     return "" unless $content;
     return "<p>$content</p>";
@@ -55,6 +67,13 @@ sub italic {
     }
 }
 
+sub code_block {
+    my ( $node ) = @_;
+    return "\n<pre language=" . $node->{language} . ">\n" . $node->{content} . "\n</pre>\n";
+    print "Found node: ";
+    print Dumper $node;
+}
+
 sub bold {
     my ( $node ) = @_;
     if ( ref $node ) {
@@ -62,14 +81,6 @@ sub bold {
     } else {
         return "<strong>$node</strong>";
     }
-}
-
-sub paragraph_start {
-    return '<p>';
-}
-
-sub paragraph_end {
-    return '</p>';
 }
 
 sub url {

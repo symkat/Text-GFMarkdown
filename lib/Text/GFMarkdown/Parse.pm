@@ -117,6 +117,29 @@ sub _parse_paragraph {
     return @tree;
 }
 
+sub _parse_code_block {
+    my ( $self, $tokens ) = @_;
+    my @tree;
+
+    $self->debug( __PACKAGE__ . "->_parse_paragraph() called." );
+
+    while ( defined ( my $token = shift @{ $tokens } ) ) {
+        if ( $token->{type} eq 'code_block' ) {
+            return @tree;
+        } elsif ( $token->{type} eq 'string' ) {
+            push @tree, $token;
+        } elsif ( $token->{type} eq 'line_break' ) {
+            # Transform line_breaks back to new lines for code blocks.
+            push @tree, { type => 'string', content => "\n" }; 
+        } elsif ( $token->{type} eq 'char' ) {
+            push @tree, { type => 'string', content => $self->_parse_string($tokens) };
+        } else {
+            die "Unexpected token type: " . $token->{type};
+        }
+    }
+    die "Unclosed code block.";
+}
+
 sub _parse {
     my ( $self, $tokens ) = @_;
     my @tree;
@@ -126,8 +149,13 @@ sub _parse {
         if ( $token->{type} eq 'header' ) {
             $self->debug( "Found header, pushing into \@tree." );
             push @tree, $token;
+        } elsif ( $token->{type} eq 'code_block' ) {
+            push @tree, { 
+                type => "code_block", 
+                language => ( $token->{content} ? $token->{content} : "" ), 
+                tokens => [ $self->_parse_code_block( $tokens ) ],
+            };
         } else {
-            $self->debug( "Found paragraph, calling $self-->_parse_paragraph" );
             unshift @{ $tokens }, $token; # Put the token back!
             push @tree, { type => "paragraph", tokens => [ $self->_parse_paragraph( $tokens ) ] };
         }
