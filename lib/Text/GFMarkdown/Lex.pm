@@ -31,14 +31,7 @@ sub lex {
             push @tokens, $self->make_token( "code_block" );
             $self->debug( "\tcode_block sequence type (undef)" );
 
-        } elsif ( $str =~ /\G([\#]+) (.+?)\n/gc  ) {
-            push @tokens, $self->make_token( "header", $2, { size => length($1) } );
-            # We need to add that \n back, since it's part of the language....
-            my $pos = pos($str);
-            $str = "\n$str";
-            pos($str) = ($pos);
-            $self->debug( "\tHeader sequence (" . $2 . ")" );
-        } elsif ( $str =~ /\G([\#]+) (.+?)$/gc  ) {
+        } elsif ( $str =~ /\G([\#]+) (.+?)(?=\n|$)/gc  ) {
             push @tokens, $self->make_token( "header", $2, { size => length($1) } );
             $self->debug( "\tHeader sequence (" . $2 . ")" );
         } elsif ( $str =~ /\G\*\*\*/gc ) {
@@ -50,7 +43,7 @@ sub lex {
         } elsif ( $str =~ /\G\*\*/gc ) {
             push @tokens, $self->make_token("italic");
             $self->debug( "\titalics sequence." );
-        } elsif ( $str =~ /\G\*/gc ) {
+        } elsif ( $str =~ /\G\*(?=\S|$)/gc ) {
             push @tokens, $self->make_token( "bold" );
             $self->debug( "\tbold sequence." );
         } elsif ( $str =~ /\G__/gc ) {
@@ -68,12 +61,9 @@ sub lex {
         } elsif ( $str =~ /\G\n/gc ) {
             push @tokens, $self->make_token( "line_break" );
             $self->debug( "\tline break sequence" );
-        } elsif ( $str =~ /\G(.+?)(\\|\*|\#|_|$RE{URI}{HTTP}|\n)/gc ) {
+        } elsif ( $str =~ /\G(.+?)(?=\\|\*|\#|_|$RE{URI}{HTTP}|\n)/gc ) {
             push @tokens, $self->make_token( "string", $1 );
             $self->debug( "\tstring sequence ($1)" );
-            my $pos = pos($str);
-            $str = "$2$str";
-            pos($str) = $pos;
         } elsif ( $str =~ /\G(.)/sgc ) {
             push @tokens, $self->make_token( "char", $1 );
             $self->debug( "\tchar sequence ($1)" );

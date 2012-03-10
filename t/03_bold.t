@@ -27,6 +27,21 @@ my $tests = [
         out => "<p><strong>Hello world</strong>.</p>",
         des => "Bold phrase with asterix.",
     },
+    {
+        in  => "5 * 3 * 4",
+        out => "<p>5 * 3 * 4</p>",
+        des => "Normal multiplication when space proceeds.",
+    },
+    {
+        in  => "5 * 3",
+        out => "<p>5 * 3</p>",
+        des => "Normal multiplication when space proceeds.",
+    },
+    {
+        in  => "*Hello World*",
+        out => "<p><strong>Hello World</strong></p>",
+        des => "Bold when * is list elem.",
+    }
 ];
 
 for my $test ( @{$tests} ) {
