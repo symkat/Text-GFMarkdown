@@ -43,7 +43,7 @@ sub lex {
         } elsif ( $str =~ /\G\*\*/gc ) {
             push @tokens, $self->make_token("italic");
             $self->debug( "\titalics sequence." );
-        } elsif ( $str =~ /\G\*(?=\S|$)/gc ) {
+        } elsif ( $str =~ /\G(?:(?<=^)|(?<=[\s]))\*(?=\S|$)/gc or $str =~ /\G(?<=[\S])\*/gc ) {
             push @tokens, $self->make_token( "bold" );
             $self->debug( "\tbold sequence." );
         } elsif ( $str =~ /\G__/gc ) {

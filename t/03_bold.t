@@ -41,6 +41,16 @@ my $tests = [
         in  => "*Hello World*",
         out => "<p><strong>Hello World</strong></p>",
         des => "Bold when * is list elem.",
+    },
+    {
+        in  => "*Hello* World",
+        out => "<p><strong>Hello</strong> World</p>",
+        des => "Bold works with space after closing.",
+    },
+    {
+        in  => "Hello *World*",
+        out => "<p>Hello <strong>World</strong></p>",
+        des => "Bold works with space before opening.",
     }
 ];
 
