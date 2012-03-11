@@ -132,12 +132,41 @@ sub _parse_code_block {
             # Transform line_breaks back to new lines for code blocks.
             push @tree, { type => 'string', content => "\n" }; 
         } elsif ( $token->{type} eq 'char' ) {
-            push @tree, { type => 'string', content => $self->_parse_string($tokens) };
+            push @tree, { type => 'string', content => $self->parse_string($tokens) };
+            #push @tree, { type => 'string', content => $self->_parse_string($tokens) };
         } else {
             die "Unexpected token type: " . $token->{type};
         }
     }
     die "Unclosed code block.";
+}
+
+sub _parse_blockquote {
+    my ( $self, $tokens ) = @_;
+    my @tree;
+
+    while ( defined ( my $token = shift @{ $tokens } ) ) {
+        # This is an interesting case.
+        # We need to treat things inside block qu
+        if ( $token->{type} eq 'string' ) {
+            # We need to check if it starts with > and remove
+            # that.
+            $token->{content} =~ s/^>//g;
+            push @tree, $token;
+        } elsif ( $token->{type} eq 'line_break' ) {
+            # Line breaks stay as \n for some reason...
+            push @tree, { type => 'string', content => "\n" }; 
+        } elsif ( $token->{type} eq 'char' ) {
+            # Put it back.
+            unshift @{ $tokens }, $token;
+            push @tree, { type => 'string', content => $self->parse_string($tokens) };
+        } elsif ( $token->{type} eq 'paragraph_end' ) {
+            return @tree;
+        } else {
+            die "Unexpected token type: " . $token->{type} . " in blockquote context.";
+        }
+    }
+    return @tree;
 }
 
 sub _parse {
@@ -155,6 +184,11 @@ sub _parse {
                 language => ( $token->{content} ? $token->{content} : "" ), 
                 tokens => [ $self->_parse_code_block( $tokens ) ],
             };
+        } elsif ( $token->{type} eq 'blockquote' ) {
+            push @tree, {
+                type => 'blockquote',
+                tokens => [ $self->_parse_blockquote( $tokens ) ],
+            }
         } else {
             unshift @{ $tokens }, $token; # Put the token back!
             push @tree, { type => "paragraph", tokens => [ $self->_parse_paragraph( $tokens ) ] };

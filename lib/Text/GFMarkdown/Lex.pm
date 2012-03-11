@@ -30,7 +30,9 @@ sub lex {
         } elsif ( $str =~ /\G\`\`\`\n/gc ) {
             push @tokens, $self->make_token( "code_block" );
             $self->debug( "\tcode_block sequence type (undef)" );
-
+        } elsif ( $str =~ /\G(?:(?=^)|(?=\n))> /gc ) {
+            push @tokens, $self->make_token( "blockquote" );
+            $self->debug( "\tblockquote sequence." );
         } elsif ( $str =~ /\G([\#]+) (.+?)(?=\n|$)/gc  ) {
             push @tokens, $self->make_token( "header", $2, { size => length($1) } );
             $self->debug( "\tHeader sequence (" . $2 . ")" );

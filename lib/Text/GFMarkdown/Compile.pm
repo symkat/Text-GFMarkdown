@@ -67,6 +67,11 @@ sub italic {
     }
 }
 
+sub blockquote {
+    my ( $node ) = @_;
+    return "<blockquote>" . $node->{content} . "</blockquote>";
+}
+
 sub code_block {
     my ( $node ) = @_;
     return "\n<pre language=" . $node->{language} . ">\n" . $node->{content} . "\n</pre>\n";
