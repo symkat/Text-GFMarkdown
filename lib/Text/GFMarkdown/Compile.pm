@@ -12,7 +12,7 @@ sub new {
 sub compile {
     my ( $self, @tree ) = @_;
 
-    print Dumper \@tree;
+    #print Dumper \@tree;
 
     return $self->_compile( \@tree );
 }
