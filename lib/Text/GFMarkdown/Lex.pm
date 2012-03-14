@@ -11,6 +11,23 @@ sub new {
     return $self;
 }
 
+sub register_hook($&) {
+    my ( $self, $hook ) = @_;
+    push @{$self->{hooks}}, $hook;
+}
+
+sub run_hooks {
+    my ( $self, @tokens ) = @_;
+
+    for my $i ( 0 .. $#tokens ) {
+        for my $hook ( @{$self->{hooks}} ) {
+            $hook->($i, \@tokens );
+        }
+    }
+    return @tokens;
+}
+
+
 sub lex {
     my ( $self, $str ) = @_;
     my @tokens;

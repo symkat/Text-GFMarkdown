@@ -32,7 +32,8 @@ if ( defined $file ) {
 sub debug {
     print "\033[33mTokens From Lexer\033[0m\n";
 
-    my @lex = Text::GFMarkdown::Lex->new->lex($content);
+    my $lex = Text::GFMarkdown::Lex->new;
+    my @lex = $lex->run_hooks($lex->lex($content));
     print Dumper \@lex;
 
     print "\033[33mParse Tree\033[0m\n";

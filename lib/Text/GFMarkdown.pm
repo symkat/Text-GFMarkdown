@@ -11,6 +11,10 @@ my $parse = Text::GFMarkdown::Parse->new;
 my $compile = Text::GFMarkdown::Compile->new;
 
 
+$lex->register_hook(
+    sub { my ( $i, $ref ) = @_; }
+);
+
 sub new {
     my ( $class, $args ) = @_;
     
@@ -22,7 +26,7 @@ sub new {
 sub markdown {
     my ( $self, $content ) = @_;
 
-    return $compile->compile($parse->parse($lex->lex($content)));
+    return $compile->compile($parse->parse($lex->run_hooks($lex->lex($content))));
 }
 
 1;
