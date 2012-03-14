@@ -14,6 +14,16 @@ my $compile = Text::GFMarkdown::Compile->new;
 $lex->register_hook(
     sub { 
         my ( $i, $ref ) = @_; 
+        # #Testing compatiablity layer.
+        #warn "i => $i, size => " . $#$ref . "\n\n";
+        $ref->[$i]->{type} = "string" 
+            if $ref->[$i]->{type} eq 'word' or $ref->[$i]->{type} eq 'space';
+
+        if ( exists $ref->[$i+1] ) { # Look ahead enabled code.
+            if ( $ref->[$i]->{type} eq 'line_break' and $ref->[$i+1]->{'type'} eq 'line_break' ) {
+                splice(@$ref,$i,2,{ type => "paragraph_end", content => "" });
+            }
+        }
     }
 );
 

@@ -78,15 +78,15 @@ sub lex {
         } elsif ( $str =~ /\G($RE{URI}{HTTP})/gc ) {
             push @tokens, $self->make_token( "url", $1 );
             $self->debug( "\turl sequence ($1)." );
-        } elsif ( $str =~ /\G\n\n/gc ) {
-            push @tokens, $self->make_token( "paragraph_end" );
-            $self->debug( "\tparagraph end sequence" );
         } elsif ( $str =~ /\G\n/gc ) {
             push @tokens, $self->make_token( "line_break" );
             $self->debug( "\tline break sequence" );
-        } elsif ( $str =~ /\G(.+?)(?=\\|\*|\#|_|$RE{URI}{HTTP}|\n)/gc ) {
-            push @tokens, $self->make_token( "string", $1 );
-            $self->debug( "\tstring sequence ($1)" );
+        } elsif ( $str =~ /\G(\s+)/gc ) {
+            push @tokens, $self->make_token( "space", $1 );
+            $self->debug( "\tspace sequence ($1)" );
+        } elsif ( $str =~ /\G(.+?)(?=\\|\*|\#|_|$RE{URI}{HTTP}|\n|\s)/gc ) {
+            push @tokens, $self->make_token( "word", $1 );
+            $self->debug( "\tword sequence ($1)" );
         } elsif ( $str =~ /\G(.)/sgc ) {
             push @tokens, $self->make_token( "char", $1 );
             $self->debug( "\tchar sequence ($1)" );
