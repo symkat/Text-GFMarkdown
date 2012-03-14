@@ -19,7 +19,7 @@ sub register_hook($&) {
 sub run_hooks {
     my ( $self, @tokens ) = @_;
 
-    for my $i ( 0 .. $#tokens ) {
+    for ( my $i = 0; $i <= $#tokens; $i++ ) {
         for my $hook ( @{$self->{hooks}} ) {
             $hook->($i, \@tokens );
         }

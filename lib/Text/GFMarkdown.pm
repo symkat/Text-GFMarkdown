@@ -12,7 +12,9 @@ my $compile = Text::GFMarkdown::Compile->new;
 
 
 $lex->register_hook(
-    sub { my ( $i, $ref ) = @_; }
+    sub { 
+        my ( $i, $ref ) = @_; 
+    }
 );
 
 sub new {
