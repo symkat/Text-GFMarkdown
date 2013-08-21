@@ -66,6 +66,12 @@ sub lex {
         } elsif ( $str =~ /\G($RE{URI}{HTTP})/gc ) {
             push @tokens, $self->make_token( "url", $1 );
             $self->debug( "\turl sequence ($1)." );
+        } elsif ( $str =~ /\G(?:(?=^)|(?=\n))(?:\*|\+|\-) /gc or ( exists $tokens[-1] and $tokens[-1]->{type} eq 'line_break' and $str =~ /\G(?:\*|\+|\-) /gc ) ) {
+            push @tokens, $self->make_token( "item" );
+            $self->debug( "\titem sequence." );
+        } elsif ( $str =~ /\G(?:(?=^)|(?=\n)|(?=>\s))> \* /gc ) {
+            push @tokens, $self->make_token( "blockquote" ), $self->make_token( "item" );
+            $self->debug( "\tblockquote item sequence." );
         } elsif ( $str =~ /\G(?:(?=^)|(?=\n)|(?=>\s))> /gc ) {
             push @tokens, $self->make_token( "blockquote" );
             $self->debug( "\tblockquote sequence." );

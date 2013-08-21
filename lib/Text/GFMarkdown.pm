@@ -24,6 +24,10 @@ $lex->register_hook(
                 splice(@$ref,$i,2,{ type => "paragraph_end", content => "" });
             }
         }
+        if ( $ref->[$i]->{type} eq 'item' and ( exists $ref->[$i-1] and $ref->[$i-1]->{type} eq 'line_break' ) ) {
+            # Remove the line break between list items.
+            $ref->[$i-1] = { type => "string", content => "" };
+        }
     }
 );
 

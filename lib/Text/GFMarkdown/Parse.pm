@@ -133,6 +133,30 @@ sub _parse_paragraph {
     return @tree;
 }
 
+sub _parse_items {
+    my ( $self, $tokens ) = @_;
+    my @tree;
+
+    $self->debug( __PACKAGE__ . "->_parse_item() called." );
+    
+    while ( @$tokens ) {
+        my @item;
+        while ( defined ( my $token = shift @{ $tokens } ) ) {
+            if ( $token->{type} eq 'item' ) {
+                $self->debug( "\tFound item type item, leaving inner loop." );
+                #unshift @$tokens, { type => "item" };
+                push @tree, { type => "item", tokens => [ $self->_parse_blockquote_paragraph( \@item ) ] };
+                next;
+            }
+            push @item, $token; 
+            $self->debug("\tAdding " . $token->{type} . " token to item." );
+        }
+        $self->debug("\tAdding item to parse tree.");
+        push @tree, { type => "item", tokens => [ $self->_parse_blockquote_paragraph( \@item ) ] };
+    }
+    return @tree;
+}
+
 sub _parse_code_block {
     my ( $self, $tokens ) = @_;
     my @tree;
@@ -221,6 +245,15 @@ sub _parse_blockquote_paragraph {
         } elsif ( $token->{type} eq 'paragraph_end' ) {
             $self->debug( "\tFound paragraph_end, returning.");
             return @tree;
+        } elsif ( $token->{type} eq 'item' ) {
+            $self->debug( "\tFound item");
+
+            my @todo;
+            while ( defined ( my $todo_token = shift @{ $tokens } ) ) {
+                last if $todo_token->{type} =~ 'paragraph_end';
+                push @todo, $todo_token;
+            }
+            push @tree, { type => 'list', tokens => [ $self->_parse_items(\@todo) ] };
         } elsif ( $token->{type} eq 'blockquote' ) {
             my $next = shift @{ $tokens };
             if ( $next->{type} eq 'blockquote' ) {
@@ -315,6 +348,16 @@ sub _parse {
                 type => 'blockquote',
                 tokens => [ $self->_parse_blockquote( $tokens ) ],
             }
+        } elsif ( $token->{type} eq 'item' ) {
+            $self->debug( "\tFound item");
+
+            my @todo;
+            while ( defined ( my $todo_token = shift @{ $tokens } ) ) {
+                last if $todo_token->{type} =~ 'paragraph_end';
+                push @todo, $todo_token;
+            }
+            push @tree, { type => 'list', tokens => [ $self->_parse_items(\@todo) ] };
+        
         } else {
             unshift @{ $tokens }, $token; # Put the token back!
             push @tree, { type => "paragraph", tokens => [ $self->_parse_paragraph( $tokens ) ] };

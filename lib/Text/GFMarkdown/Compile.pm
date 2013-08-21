@@ -117,6 +117,18 @@ sub line_break {
     return '<br />';
 }
 
+sub list {
+    my ( $node ) = @_;
+    my $content = ref $node ? $node->{content} : $node;
+    return "<ul>$content</ul>";
+}
+
+sub item {
+    my ( $node ) = @_;
+    my $content = ref $node ? $node->{content} : $node;
+    return "<li>$content</li>";
+}
+
 sub header {
     my ( $node ) = @_;
 
