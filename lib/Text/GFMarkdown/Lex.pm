@@ -51,6 +51,15 @@ sub lex {
         # Block quotes start with "> " and may be preceeded
         # by a newline, or another block quote.
 
+        } elsif ( $str =~ /\G\[(.*)\]\(($RE{URI}{HTTP})\s+"([^"]+)"\s*\)/gc ) {
+            push @tokens, $self->make_token( "link", $2, { title => $3, text => $1 } );
+            $self->debug( "\tlink sequence (text => $1, title => $3, href => $2)." );
+        } elsif ( $str =~ /\G\[(.*)\]\(($RE{URI}{HTTP}\s*)\)/gc ) {
+            push @tokens, $self->make_token( "link", $2, { text => $1 } );
+            $self->debug( "\tlink sequence (text => $1, href => $2)." );
+        } elsif ( $str =~ /\G($RE{URI}{HTTP})/gc ) {
+            push @tokens, $self->make_token( "url", $1 );
+            $self->debug( "\turl sequence ($1)." );
         } elsif ( $str =~ /\G(?:(?=^)|(?=\n)|(?=>\s))> /gc ) {
             push @tokens, $self->make_token( "blockquote" );
             $self->debug( "\tblockquote sequence." );
@@ -75,9 +84,6 @@ sub lex {
         } elsif ( $str =~ /\G_/gc ) {
             push @tokens, $self->make_token( "bold" );
             $self->debug( "\tbold sequence." );
-        } elsif ( $str =~ /\G($RE{URI}{HTTP})/gc ) {
-            push @tokens, $self->make_token( "url", $1 );
-            $self->debug( "\turl sequence ($1)." );
         } elsif ( $str =~ /\G\n/gc ) {
             push @tokens, $self->make_token( "line_break" );
             $self->debug( "\tline break sequence" );

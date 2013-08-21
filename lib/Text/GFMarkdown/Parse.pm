@@ -77,6 +77,14 @@ sub _parse_paragraph {
         } elsif ( $token->{type} eq 'url' ) {
             push @tree, { type => 'url', content => $token->{content} };
             $self->debug( "\tFound URL: " . $token->{content} );
+        } elsif ( $token->{type} eq 'link' ) {
+            push @tree, { 
+                type => 'link', 
+                content => $token->{content},  
+                ( $token->{title} ? ( title => $token->{title} ) : () ), 
+                text => $token->{text}
+            };
+            $self->debug( "\tFound link " . $token->{content} );
         } elsif ( $token->{type} eq 'bold_italic' ) {
             $self->debug( "\tFound bold_italic.");
             my @todo;
@@ -157,6 +165,14 @@ sub _parse_blockquote_paragraph {
         } elsif ( $token->{type} eq 'url' ) {
             push @tree, { type => 'url', content => $token->{content} };
             $self->debug( "\tFound URL: " . $token->{content} );
+        } elsif ( $token->{type} eq 'link' ) {
+            push @tree, { 
+                type => 'link', 
+                content => $token->{content},  
+                ( $token->{title} ? ( title => $token->{title} ) : () ), 
+                text => $token->{text}
+            };
+            $self->debug( "\tFound link " . $token->{content} );
         } elsif ( $token->{type} eq 'bold_italic' ) {
             $self->debug( "\tFound bold_italic.");
             my @todo;

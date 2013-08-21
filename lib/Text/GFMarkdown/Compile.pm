@@ -94,6 +94,13 @@ sub url {
     return "<a href=\"$content\">$content</a>"; 
 }
 
+sub link {
+    my ( $node ) = @_;
+    my $content = ref $node ? $node->{content} : $node;
+    return '<a href="' . $node->{content} . '" title="' . $node->{title} .'">' . $node->{text} . "</a>" if $node->{title};
+    return '<a href="' . $node->{content} . '">' . $node->{text} . "</a>";
+}
+
 sub string {
     my ( $node ) = @_;
     return ref $node ? $node->{content} : $node;

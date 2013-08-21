@@ -17,6 +17,11 @@ my $tests = [
         out => "<blockquote><p>Hello World\n</p><blockquote><p>Again</p></blockquote></blockquote>",
         des => "Multiple Lines.",
     },
+    {
+        in  => "> Hello World\n> > **Again**",
+        out => "<blockquote><p>Hello World\n</p><blockquote><p><em>Again</em></p></blockquote></blockquote>",
+        des => "Multiple Lines with formating.",
+    },
 #    {
 #        in  => "> Hello World\n\n> > Again",
 #        out => "<blockquote><p>Hello World</p><blockquote>"
