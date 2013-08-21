@@ -101,6 +101,13 @@ sub link {
     return '<a href="' . $node->{content} . '">' . $node->{text} . "</a>";
 }
 
+sub img {
+    my ( $node ) = @_;
+    my $content = ref $node ? $node->{content} : $node;
+    return '<img src="' . $node->{content} . '" title="' . $node->{title} . '" alt="' . $node->{text} . "\">" if $node->{title};
+    return '<img src="' . $node->{content} . '" alt="' . $node->{text} . "\">";
+}
+
 sub string {
     my ( $node ) = @_;
     return ref $node ? $node->{content} : $node;

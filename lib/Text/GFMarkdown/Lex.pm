@@ -51,6 +51,12 @@ sub lex {
         # Block quotes start with "> " and may be preceeded
         # by a newline, or another block quote.
 
+        } elsif ( $str =~ /\G!\[(.*)\]\(($RE{URI}{HTTP})\s+"([^"]+)"\s*\)/gc ) {
+            push @tokens, $self->make_token( "img", $2, { title => $3, text => $1 } );
+            $self->debug( "\tlink sequence (text => $1, title => $3, href => $2)." );
+        } elsif ( $str =~ /\G!\[(.*)\]\(($RE{URI}{HTTP}\s*)\)/gc ) {
+            push @tokens, $self->make_token( "img", $2, { text => $1 } );
+            $self->debug( "\tlink sequence (text => $1, href => $2)." );
         } elsif ( $str =~ /\G\[(.*)\]\(($RE{URI}{HTTP})\s+"([^"]+)"\s*\)/gc ) {
             push @tokens, $self->make_token( "link", $2, { title => $3, text => $1 } );
             $self->debug( "\tlink sequence (text => $1, title => $3, href => $2)." );
