@@ -1,16 +1,16 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More skip_all => "Not implimented.";
+use Test::More;
 use Text::GFMarkdown;
 
 my $m = Text::GFMarkdown->new();
 
 my $tests = [
     {
-        in  => "",
-        out => "",
-        des => "",
+        in  => "Hello World\n***\nThis is a new world!",
+        out => "<p>Hello World<br /><hr>This is a new world!</p>",
+        des => "Horizonal Rule",
     },
 ];
 

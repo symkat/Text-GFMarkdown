@@ -74,6 +74,9 @@ sub _parse_paragraph {
             unshift @{ $tokens }, $token;
             push @tree, { type => 'string', content => $self->parse_string($tokens) };
             $self->debug( "\tFound string: " . $tree[-1]->{content} );
+        } elsif ( $token->{type} eq 'hr' ) {
+            push @tree, { type => 'hr' };
+            $self->debug( "\tFound horizonal rule" );
         } elsif ( $token->{type} eq 'url' ) {
             push @tree, { type => 'url', content => $token->{content} };
             $self->debug( "\tFound URL: " . $token->{content} );

@@ -129,6 +129,10 @@ sub item {
     return "<li>$content</li>";
 }
 
+sub hr {
+    return "<hr>";
+}
+
 sub header {
     my ( $node ) = @_;
 
