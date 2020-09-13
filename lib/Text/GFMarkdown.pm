@@ -11,6 +11,40 @@ my $parse = Text::GFMarkdown::Parse->new;
 my $compile = Text::GFMarkdown::Compile->new;
 
 
+$lex->register_hook(sub {
+    my ( $i, $ref ) = @_;
+
+    return unless $i == 0; # Only run once, on the first token.
+    my @new_start;
+
+    if ( $ref->[$i]->{type} eq 'hr' ) {
+        my $meta_start = shift @$ref;
+
+        while ( my $key = shift @$ref ) {
+            last if $key->{type} eq 'hr';
+            my $metadata_value;
+            my $metadata_key = $key->{content};
+            $metadata_key =~ s/:$//;
+
+            while ( my $value = shift @$ref ) {
+                if ( $value->{type} eq 'space' ) {
+                    $metadata_value .= ' ';
+                } elsif ( $value->{type} eq 'word' ) {
+                    $metadata_value .= $value->{content};
+                } elsif ( $value->{type} eq 'line_break' ) {
+                    last;
+                } else {
+                    die "Unexpected token in hook";
+                }
+            }
+            push @new_start,
+                { type => 'metadata_key',   content => $metadata_key },
+                { type => 'metadata_value', content => $metadata_value };
+        }
+        unshift @{$ref}, @new_start;
+    }
+});
+
 $lex->register_hook(
     sub { 
         my ( $i, $ref ) = @_; 
