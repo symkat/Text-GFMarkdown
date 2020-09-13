@@ -12,6 +12,7 @@ use base 'Text::GFMarkdown::Utils';
 #        print "[DEBUG] " . $message . "\n";
 #    }
 #}
+#
 
 sub new {
     my ( $class, $args ) = @_;
@@ -336,6 +337,7 @@ sub _parse {
     my @tree;
     $self->debug( "$self->_parse() called." );
     
+    my @ignored_tokens = ( qw( metadata_key metadata_value ) );
     while ( defined ( my $token = shift @{ $tokens } ) ) {
         if ( $token->{type} eq 'header' ) {
             $self->debug( "Found header, pushing into \@tree." );
@@ -360,7 +362,8 @@ sub _parse {
                 push @todo, $todo_token;
             }
             push @tree, { type => 'list', tokens => [ $self->_parse_items(\@todo) ] };
-        
+        } elsif ( grep { $token->{type} eq $_  } @ignored_tokens ) {
+            # Don't do anything with these tokens in this compiler.
         } else {
             unshift @{ $tokens }, $token; # Put the token back!
             push @tree, { type => "paragraph", tokens => [ $self->_parse_paragraph( $tokens ) ] };
