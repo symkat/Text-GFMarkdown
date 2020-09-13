@@ -79,4 +79,20 @@ sub markdown {
     return $compile->compile($parse->parse($lex->run_hooks($lex->lex($content))));
 }
 
+sub metadata {
+    my ( $self, $content ) = @_;
+
+    my @tree = $lex->run_hooks($lex->lex($content));
+
+    my $data = {};
+    foreach my $elem ( shift @tree ) {
+        if ( $elem->{type} eq 'metadata_key' ) {
+            $data->{$elem->{content}} = $tree[0]->{type} eq 'metadata_value'
+                ? (shift @tree)->{content}
+                : undef;
+        }
+    }
+    return $data;
+}
+
 1;
