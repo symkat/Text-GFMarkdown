@@ -12,7 +12,7 @@ my $tests = [
         out => "<p>Hello World</p>",
         des => "Metadata is not rendered",
         metadata => {
-            title => ' Hello World',
+            title => 'Hello World',
         },
     },
 ];

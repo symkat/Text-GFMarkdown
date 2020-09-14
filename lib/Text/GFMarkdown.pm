@@ -27,6 +27,7 @@ $lex->register_hook(sub {
             my $metadata_key = $key->{content};
             $metadata_key =~ s/:$//;
 
+            shift @$ref; # Drop the first token (space).
             while ( my $value = shift @$ref ) {
                 if ( $value->{type} eq 'space' ) {
                     $metadata_value .= ' ';
