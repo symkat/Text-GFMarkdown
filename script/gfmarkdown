@@ -8,7 +8,7 @@ use Text::GFMarkdown::Compile;
 use Data::Dumper;
 
 
-my ( $content, $file, $debug ) = ( undef, 'test.md', 1 );
+my ( $content, $file, $debug ) = ( undef, undef, 0 );
 
 while ( defined ( my $arg = shift @ARGV ) ) {
     if ( $arg =~ /^-?-f(?:ile)$/ ) {
