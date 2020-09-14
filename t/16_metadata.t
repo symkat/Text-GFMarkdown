@@ -8,11 +8,25 @@ my $m = Text::GFMarkdown->new();
 
 my $tests = [
     {
+        des => "Metadata is not rendered",
         in  => "---\ntitle: Hello World\n---\n\nHello World",
         out => "<p>Hello World</p>",
-        des => "Metadata is not rendered",
+    },
+    {
+        in  => "---\ntitle: Hello World\n---\n\nHello World",
+        out => "<p>Hello World</p>",
+        des => "Single element meta data is collected.",
         metadata => {
             title => 'Hello World',
+        },
+    },
+    {
+        in  => "---\ntitle: Hello World\ndate: 2020-09-13 5:40 PM\n---\n\nHello World",
+        out => "<p>Hello World</p>",
+        des => "Single element meta data is collected.",
+        metadata => {
+            title => 'Hello World',
+            date  => '2020-09-13 5:40 PM',
         },
     },
 ];

@@ -87,7 +87,7 @@ sub metadata {
     my @tree = $lex->run_hooks($lex->lex($content));
 
     my $data = {};
-    foreach my $elem ( shift @tree ) {
+    while ( my $elem = shift @tree ) {
         if ( $elem->{type} eq 'metadata_key' ) {
             $data->{$elem->{content}} = $tree[0]->{type} eq 'metadata_value'
                 ? (shift @tree)->{content}
