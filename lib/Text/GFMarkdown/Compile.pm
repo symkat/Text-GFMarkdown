@@ -51,7 +51,7 @@ sub _compile {
 
 sub paragraph {
     my ( $node ) = @_;
-    return "" unless length $node->{content} >= 1; 
+    return "" unless defined $node->{content} and length $node->{content} >= 1;
     return "<p>" . $node->{content} . "</p>";
     my ( $content ) = @_;
     return "" unless $content;
