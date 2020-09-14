@@ -1,3 +1,4 @@
+# ABSTRACT: Markdown Lexer, Parser, and Compiler.
 package Text::GFMarkdown;
 use warnings;
 use strict;
